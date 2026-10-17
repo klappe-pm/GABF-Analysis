@@ -13,6 +13,8 @@ images:
     spot: null
     component: null
     url: https://github.com/klappe-pm/GABF-Analysis/blob/main/docs/feedback/home/wi-024-design-setting-seed-color-changed-from-2d6a4f-to/component.png?raw=true
+issue: 167
+issue-url: https://github.com/klappe-pm/GABF-Analysis/issues/167
 setting-edits:
   - file: .design/design-system/settings.md
     key: Seed color
