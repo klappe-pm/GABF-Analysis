@@ -1,5 +1,5 @@
 ---
-Seed color: "#2D6A4F"
+Seed color: "#720000"
 Primary color: "#2D6A4F"
 Color style: tonal spot
 Surface tint: none
