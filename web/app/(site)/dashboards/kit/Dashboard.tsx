@@ -57,15 +57,15 @@ function useJson<T>(path: string, wanted: boolean): T | null {
 function Stats({ rows, copy }: { rows: P.MedalRow[]; copy: ReturnType<typeof makeCopy> }) {
   const med = copy.group('labels.medal');
   const count = (key: string) => new Set(rows.map((r) => r[key])).size;
-  const special = rows.filter((r) => r.special).length;
   const entries = [...new Map(rows.filter((r) => r.entries).map((r) => [`${r.year}|${r.category_name}`, r.entries as number])).values()].reduce((s, n) => s + n, 0);
   const split = ['Gold', 'Silver', 'Bronze'].map((m) => ({ m, n: rows.filter((r) => r.medal === m).length }));
   return (
+    <>
     <FieldGrid>
       <Field label={copy.t('page.stats.medals')}>{fmtN(rows.length)}</Field>
       <Field label={copy.t('page.stats.breweries')}>{fmtN(count('brewery_key'))}</Field>
       <Field label={copy.t('page.stats.states')}>{fmtN(count('state'))}</Field>
-      <Field label={copy.t('page.stats.categories')} note={copy.t('page.stats.categories_note', { count: fmtN(special) })}>{fmtN(count('category_name'))}</Field>
+      <Field label={copy.t('page.stats.categories')}>{fmtN(count('category_name'))}</Field>
       <Field label={copy.t('page.stats.medal_split')}>
         <span className="inline-flex flex-wrap items-center gap-x-4 gap-y-1">
           {split.map(({ m, n }) => (
@@ -78,6 +78,18 @@ function Stats({ rows, copy }: { rows: P.MedalRow[]; copy: ReturnType<typeof mak
       </Field>
       <Field label={copy.t('page.stats.entrants')} note={copy.t('page.stats.entrants_note')}>{entries ? fmtN(entries) : copy.missing()}</Field>
     </FieldGrid>
+    <details className="border-y border-outline-variant py-3">
+      <summary className="type-title-small cursor-pointer text-on-surface">{copy.t('page.stats.medal_visual')}</summary>
+      <figure className="mt-4 flex flex-col gap-3">
+        <div className="flex h-8 overflow-hidden" aria-hidden="true">
+          {split.map(({ m, n }) => <span key={m} style={{ width: `${rows.length ? n / rows.length * 100 : 0}%`, backgroundColor: `var(--app-color-${m.toLowerCase()})` }} />)}
+        </div>
+        <figcaption className="type-body-medium flex flex-wrap gap-x-6 gap-y-2 text-on-surface">
+          {split.map(({ m, n }) => <span key={m} className="inline-flex items-center gap-2"><MedalMark medal={m as 'Gold' | 'Silver' | 'Bronze'} size="sm" title={med[m]} label={false} />{med[m]}: {fmtN(n)}</span>)}
+        </figcaption>
+      </figure>
+    </details>
+    </>
   );
 }
 

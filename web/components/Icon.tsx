@@ -1,55 +1,22 @@
 'use client';
 
 import { useSettings } from '@/design/runtime';
+import { lucideIcons } from './lucide-icons';
 
-// Outline icons on a 16 unit grid with round caps and joins, in the weight of Material's outlined symbols.
-// They inherit the text color. Size and stroke width come from the icon spec.
-
-export type IconName = 'close' | 'chevron-down' | 'search' | 'check' | 'menu' | 'sort' | 'sort-ascending' | 'sort-descending' | 'filter'
-  | 'tune' | 'palette' | 'type' | 'shape' | 'layers' | 'widgets'
-  | 'medal' | 'brewery' | 'beer' | 'chart' | 'hop' | 'list' | 'farm' | 'home' | 'bookmark';
-
-const PATHS: Record<IconName, string> = {
-  close: 'M4 4 12 12 M12 4 4 12',
-  'chevron-down': 'M4 6 8 10 12 6',
-  search: 'M7 2.5a4.5 4.5 0 1 1 0 9a4.5 4.5 0 1 1 0-9 M10.25 10.25 13.5 13.5',
-  check: 'M3 8.5 6.5 12 13 4.5',
-  menu: 'M2.5 4.5h11 M2.5 8h11 M2.5 11.5h11',
-  sort: 'M5 6.5 8 3.5 11 6.5 M5 9.5 8 12.5 11 9.5',
-  'sort-ascending': 'M5 7 8 4 11 7 M8 4v8.5',
-  'sort-descending': 'M5 9 8 12 11 9 M8 12V3.5',
-  filter: 'M2.5 4h11 M4.5 8h7 M6.5 12h3',
-  // Section marks for the design system navigation.
-  tune: 'M2.5 4.5h6 M11.5 4.5h2 M10 3v3 M2.5 11.5h2 M7.5 11.5h6 M6 10v3',
-  palette: 'M8 2.5a5.5 5.5 0 1 0 0 11c1 0 1.3-.8.8-1.5-.5-.8 0-1.8 1-1.8h1.2A2.5 2.5 0 0 0 13.5 7.7 5.5 5.2 0 0 0 8 2.5 M5 7h.01 M7.5 5h.01 M10.5 6h.01',
-  type: 'M3 4.5V3h10v1.5 M8 3v10 M6 13h4',
-  shape: 'M3 3h5v5H3z M11 8.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 1 1 0-5',
-  layers: 'M8 2.5 13.5 5.5 8 8.5 2.5 5.5z M2.5 8.5 8 11.5 13.5 8.5 M2.5 11 8 14 13.5 11',
-  widgets: 'M2.5 2.5h4.5v4.5H2.5z M9 2.5h4.5v4.5H9z M2.5 9h4.5v4.5H2.5z M9 9h4.5v4.5H9z',
-  // Destinations of the site navigation.
-  medal: 'M5.5 2.5 8 6.5 10.5 2.5 M8 6.5a3.5 3.5 0 1 1 0 7a3.5 3.5 0 1 1 0-7',
-  brewery: 'M2.5 13.5h11 M3 13.5V7l3 2V7l3 2V7l3 2V2.5h1.5v11',
-  beer: 'M4 5h6v8a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 4 13z M10 7h1.5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H10 M4 5a1.5 1.5 0 0 1 2-1.4 1.5 1.5 0 0 1 2.5 0A1.5 1.5 0 0 1 10 5',
-  chart: 'M2.5 13.5h11 M4.5 11V8 M8 11V4 M11.5 11V6.5',
-  hop: 'M8 2.5c2.3 1.4 3.5 3.8 3.5 6.5a3.5 3.5 0 0 1-7 0c0-2.7 1.2-5.1 3.5-6.5z M5 7.5h6 M4.6 10h6.8',
-  list: 'M5.5 4.5h8 M5.5 8h8 M5.5 11.5h8 M2.5 4.5h.01 M2.5 8h.01 M2.5 11.5h.01',
-  farm: 'M2.5 13.5h11 M3.5 13.5V8L8 4.5 12.5 8v5.5 M6.5 13.5v-3h3v3',
-  home: 'M2 7.5 8 2.5l6 5 M3.5 6.5v7h9v-7',
-  bookmark: 'M4.5 2.5h7v11L8 10.5l-3.5 3z',
-};
+export type IconName = keyof typeof lucideIcons;
 
 export function Icon({ name, label, size, slot }: { name: IconName; label?: string; size?: number; slot?: string }) {
   const s = useSettings('icon');
   const px = size ?? Number(s.Size ?? 20);
   return (
     <svg
-      viewBox="0 0 16 16"
+      viewBox="0 0 24 24"
       data-component="icon"
       slot={slot}
       width={px}
       height={px}
       className="shrink-0 fill-none stroke-current"
-      strokeWidth={Number(s['Stroke width'] ?? 1.5)}
+      strokeWidth={Number(s['Stroke width'] ?? 2)}
       strokeLinecap="round"
       strokeLinejoin="round"
       role={label ? 'img' : undefined}
@@ -57,7 +24,7 @@ export function Icon({ name, label, size, slot }: { name: IconName; label?: stri
       aria-hidden={label ? undefined : true}
       focusable="false"
     >
-      <path d={PATHS[name]} />
+      {lucideIcons[name]}
     </svg>
   );
 }

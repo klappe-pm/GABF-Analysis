@@ -11,11 +11,12 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { createPortal } from 'react-dom';
 import { useDesign } from '@/design/runtime';
 import { ReviewSettingsPanel } from '@/components/review/ReviewSettingsPanel';
-import { api, type ComponentInfo, keyWords, type Recorded, ReviewError, type Step } from './api';
+import { api, type ComponentInfo, keyWords, type Recorded, ReviewError, type Step, words } from './api';
 import { deviceOf, docRect, inLayer, PHONE_QUERY, resolveCopy, scanMarks, type Spot, spotFor } from './dom';
 import { InlineEditor } from './inline-editor';
 import { framedScreen, StepMarker } from './step-marker';
 import { copyPageFor } from './pages.mjs';
+import { categoryGroups, feedbackDetails } from './categories.mjs';
 
 const LOCAL = new Set(['127.0.0.1', 'localhost', '[::1]', '::1']);
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
@@ -27,6 +28,7 @@ const excerpt = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).t
 export type Copy = Record<string, string>;
 const fill = (text: string, values: Record<string, string | number> = {}) => text.replace(/\{\{(\w+)\}\}/g, (m, name) => (name in values ? String(values[name]) : m));
 
+// An internal tool: the panel shows only on a local review server.
 export function WebReview({ copy }: { copy?: Copy }) {
   const [local, setLocal] = useState(false);
   useEffect(() => setLocal(LOCAL.has(location.hostname)), []);
@@ -50,8 +52,10 @@ function Widget({ copy }: { copy: Copy }) {
   const [note, setNote] = useState('');
   const [cats, setCats] = useState<string[]>([]);
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [other, setOther] = useState('');
   const [added, setAdded] = useState<string[]>([]);
   const [removed, setRemoved] = useState<string[]>([]);
+  const [add, setAdd] = useState('');
   const [categories, setCategories] = useState<string[] | null>(null);
   const [lists, setLists] = useState<ComponentInfo[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
@@ -64,8 +68,10 @@ function Widget({ copy }: { copy: Copy }) {
   const [editing, setEditing] = useState<{ element: HTMLElement; key: string; spot: Spot } | null>(null);
   const [hover, setHover] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [tick, setTick] = useState(0);
-  const [add, setAdd] = useState('');
+  const [stepsFailed, setStepsFailed] = useState(false);
+  const [reload, setReload] = useState(0);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+  const otherRef = useRef<HTMLTextAreaElement>(null);
   const pending = useRef<ReturnType<typeof setTimeout> | null>(null);
   const spotsRef = useRef(spots);
   spotsRef.current = spots;
@@ -116,15 +122,16 @@ function Widget({ copy }: { copy: Copy }) {
     setTimeout(() => noteRef.current?.focus(), 0);
     if (!categories) api<{ categories: string[] }>('GET', '/review/categories').then((r) => setCategories([...r.categories].sort((a, b) => a.localeCompare(b, 'en')))).catch(() => setCategories([]));
     if (!lists.length) api<{ components: ComponentInfo[] }>('GET', '/review/lists').then((r) => setLists(r.components)).catch(() => undefined);
+    setStepsFailed(false);
     api<{ matched: string[]; screens: Step[] }>('GET', `/review/web/screens?route=${encodeURIComponent(routeOf())}`).then((r) => {
       setSteps(r.screens);
       setMatched(r.matched);
       // In a control plane screen the step is the screen it frames; otherwise the first step of this route.
       const framed = framedScreen();
       setStep((s) => s || (framed && r.screens.some((x) => x.id === framed) ? framed : r.matched[0]) || '');
-    }).catch(() => undefined);
+    }).catch(() => setStepsFailed(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, reload]);
 
   const loadRecorded = useCallback(() => {
     if (!step) { setRecorded([]); return; }
@@ -265,10 +272,12 @@ function Widget({ copy }: { copy: Copy }) {
     setAdded(added.filter((n) => n !== name));
     if (derived.includes(name)) setRemoved([...removed, name]);
   };
+  const retry = () => { setCategories(null); setReload((value) => value + 1); };
 
   const send = async () => {
     if (sending) return;
     if (!note.trim()) { setSaid(c('messages.note_required')); setBad(true); noteRef.current?.focus(); return; }
+    if (!other.trim()) { setSaid(c('messages.other_required')); setBad(true); otherRef.current?.focus(); return; }
     if (!step) { setSaid(c('messages.step_required')); setBad(true); return; }
     setSending(true);
     setSaid(c('messages.sending'));
@@ -279,8 +288,7 @@ function Widget({ copy }: { copy: Copy }) {
         route: routeOf(),
         hash: location.hash,
         served: 'web',
-        text: note,
-        categories: cats,
+        ...feedbackDetails(note, other, cats),
         spots: spots.map((s) => ({ n: s.n, selector: s.selector, rect: s.rect, text: s.text })),
         components: components.map((name) => ({ name })),
         contentKeys: keys,
@@ -292,6 +300,7 @@ function Widget({ copy }: { copy: Copy }) {
       setSpots([]);
       setAdded([]);
       setRemoved([]);
+      setOther('');
       setSaid(`${c('messages.registered', { id: r.id })}${r.redacted?.length ? ` ${c('messages.redacted')}` : ''}`);
       setTimeout(loadRecorded, 4000);
     } catch (e) {
@@ -331,7 +340,7 @@ function Widget({ copy }: { copy: Copy }) {
         <aside id="gfw-panel" className="gfw-panel" aria-label={c('panel.title')}>
           <div className="gfw-head">
             <h2>{c('panel.title')}</h2>
-            <button type="button" className="gfw-btn" onClick={() => setOpen(false)}>{c('panel.close')}</button>
+            <button type="button" className="gfw-btn gfw-close" onClick={() => setOpen(false)}>{c('panel.close')}</button>
           </div>
           <div className="gfw-scroll">
             <div className="gfw-field">
@@ -339,11 +348,16 @@ function Widget({ copy }: { copy: Copy }) {
               <textarea id="gfw-note" ref={noteRef} rows={4} placeholder={c('panel.note_placeholder')} value={note} onChange={(e) => setNote(e.target.value)} />
             </div>
             <div className="gfw-field">
+              <label htmlFor="gfw-other">{c('panel.other_label')}</label>
+              <textarea id="gfw-other" ref={otherRef} rows={3} required aria-required="true" placeholder={c('panel.other_placeholder')} value={other} onChange={(event) => setOther(event.target.value)} />
+            </div>
+            <div className="gfw-field">
               <label htmlFor="gfw-step">{c('panel.step_label')}</label>
+              {stepsFailed ? <p role="alert" className="gfw-hint">{c('panel.step_unavailable')} <button type="button" className="gfw-btn small" onClick={retry}>{c('panel.retry')}</button></p> : null}
               <select id="gfw-step" value={step} onChange={(e) => setStep(e.target.value)}>
-                <option value="">{matched.length ? c('panel.step_choose') : c('panel.step_none')}</option>
-                {matched.length ? <optgroup label={c('panel.step_group_page')}>{steps.filter((s) => matched.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</optgroup> : null}
-                <optgroup label={c('panel.step_group_all')}>{steps.filter((s) => !matched.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</optgroup>
+                <option value="">{stepsFailed ? c('panel.step_unavailable') : matched.length ? c('panel.step_choose') : c('panel.step_none')}</option>
+                {matched.length ? <optgroup label={c('panel.step_group_page')}>{steps.filter((s) => matched.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{s.label.replace(/^S-\d+\s*/i, '').replace(/[-_]+/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase())}</option>)}</optgroup> : null}
+                <optgroup label={c('panel.step_group_all')}>{steps.filter((s) => !matched.includes(s.id)).map((s) => <option key={s.id} value={s.id}>{words(s.label.replace(/^S-\d+\s*/i, ''))}</option>)}</optgroup>
               </select>
             </div>
             <div className="gfw-field">
@@ -365,15 +379,22 @@ function Widget({ copy }: { copy: Copy }) {
             </div>
             <fieldset className="gfw-field">
               <legend>{c('panel.categories_heading')}</legend>
-              <div className="gfw-cats">
-                {(categories ?? []).map((c) => (
-                  <label key={c} className="gfw-check">
-                    <input type="checkbox" checked={cats.includes(c)} onChange={(e) => setCats(e.target.checked ? [...cats, c] : cats.filter((x) => x !== c))} />
-                    {c}
-                  </label>
+              <div className="gfw-groups">
+                {categoryGroups(categories ?? []).map((group: { key: string; categories: string[] }) => (
+                  <div className="gfw-group" key={group.key} role="group" aria-label={c(`panel.category_${group.key}`)}>
+                    <span className="gfw-group-name">{c(`panel.category_${group.key}`)}</span>
+                    <div className="gfw-cats">
+                      {group.categories.map((name) => (
+                        <label key={name} className={`gfw-chip${cats.includes(name) ? ' on' : ''}`}>
+                          <input type="checkbox" checked={cats.includes(name)} onChange={(e) => setCats(e.target.checked ? [...cats, name] : cats.filter((value) => value !== name))} />
+                          {name}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-                {categories && !categories.length ? <p className="gfw-hint">{c('panel.categories_unavailable')}</p> : null}
               </div>
+              {categories && !categories.length ? <p role="alert" className="gfw-hint">{c('panel.categories_unavailable')} <button type="button" className="gfw-btn small" onClick={retry}>{c('panel.retry')}</button></p> : null}
             </fieldset>
             <div className="gfw-field">
               <label htmlFor="gfw-comp-add">{c('panel.components_heading')}</label>

@@ -40,7 +40,7 @@
     "web:install": "npm ci --prefix web",
     "web:build": "npm run build --prefix web",
     "web:serve": "npm run serve --prefix web",
-    "web:review": "WEB_REVIEW=1 DESIGN_REVIEW=1 npm run build --prefix web && product-feedback review serve --port 4176 --pipeline off",
+    "web:review": "WEB_REVIEW=1 DESIGN_REVIEW=1 npm run build --prefix web && npm run design:build && product-feedback review serve --port 4176 --pipeline on",
     "build:standalone": "node scripts/brand/build.mjs && node scripts/build-standalone.mjs",
     "brand": "node scripts/brand/build.mjs",
     "brand:check": "node scripts/brand/build.mjs --check",

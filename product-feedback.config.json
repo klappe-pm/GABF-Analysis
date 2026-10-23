@@ -72,6 +72,6 @@
     "port": 4173,
     "hooks": "scripts/review-hooks.mjs",
     "dataPrefix": "/data/",
-    "pipeline": false
+    "pipeline": true
   }
 }
