@@ -8,8 +8,8 @@ export class ReviewError extends Error {
 }
 
 export async function api<T = unknown>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
-  const res = await fetch(path, method === 'GET' ? undefined : { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  const json = await res.json().catch(() => ({}));
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}${path}`, method === 'GET' ? undefined : { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  const json = await res.json().catch(() => { throw new ReviewError('The review server returned an unreadable response.'); });
   if (!res.ok) throw new ReviewError(json.error || `${res.status} ${res.statusText}`.trim(), json.problems ?? []);
   return json as T;
 }

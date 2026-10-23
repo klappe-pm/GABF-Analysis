@@ -1,5 +1,5 @@
 ---
-Seed color: "#2D6A4F"
+Seed color: "#720000"
 Primary color: "#2D6A4F"
 Color style: tonal spot
 Surface tint: none
@@ -7,7 +7,7 @@ Page background: white
 Contrast: standard
 Heading font: Public Sans
 Body font: Public Sans
-Label font: Archivo Narrow
+Label font: Public Sans
 Corner shape: medium
 Gold medal color: "#B8860B"
 Silver medal color: "#8A9199"
@@ -33,15 +33,15 @@ These settings shape every page. The site reads them each time a page loads, so 
 - Surface tint: none keeps backgrounds, cards, and bars white and neutral gray, with the seed's color only on accents (main actions, focus, selection, charts); seed tints every surface with the seed's hue.
 - Page background: white puts every page on pure white (#FFFFFF); scheme uses Material's own near white surface. Cards, the app bar, and the navigation keep their light gray containers either way.
 - Contrast: standard, medium, or high contrast between text and its background.
-- Heading font: the face for display, headline, and title text. Public Sans is the only choice, because headings carry figures.
-- Body font: the face for body text and every figure. Public Sans is the only choice.
+- Heading font: the face for display, headline, and title text: Public Sans or Archivo Narrow.
+- Body font: the face for body text: Public Sans or Archivo Narrow. Figures use the selected body face.
 - Label font: the face for short labels such as field labels and table headers: Archivo Narrow or Public Sans. Labels that hold figures always use Public Sans.
 - Corner shape: how round corners are across the site: square, small, medium (Material's standard), or large.
 - Gold medal color, Silver medal color, Bronze medal color: the metal fills of medal marks and medal bars, in quotes. Each needs 3 to 1 against the white page and must keep the medal's initial readable on it, so the brand build refuses a metal that is too light or too deep.
 - Page width: how wide content may grow on large screens. full (or fill) uses the whole window; wide stops at 1600 pixels; standard stops at 1280 pixels; a width such as 90rem stops there. Long paragraphs always keep a readable line length, and tables and charts use the full width either way.
 - Compact margin: the side margin on phones (windows under 600 pixels wide), in pixels. Material's standard is 16.
 - Wide margin: the side margin on every wider window, in pixels. Material's standard is 24.
-- Navigation on wide screens: on windows 1200 pixels and wider, drawer keeps a navigation drawer open beside the page; rail keeps the narrower navigation rail used on medium windows. Phones always use tabs.
+- Navigation: the Menu button opens and closes the left navigation on every screen size. It starts closed.
 - Series 1 color through Series 5 color: the chart colors, in quotes, in order of importance: the first series in a chart takes Series 1, the next Series 2, and so on. They are five clearly different hues (green, blue, orange, purple, magenta) so charts read easily, including for people with red green color blindness. Each needs 3 to 1 against the white page, neighbours must stay easy to tell apart, and none may repeat a medal color; the brand build refuses a set that breaks those rules. Medal charts always use the medal colors instead.
 - Every page, the README banners, and the social card take their colors from this file; the site build regenerates them, so a change here reaches every one of them.
 - Type sizes: to change one Material type role, add a line such as Body large size: 17 (a whole number of pixels). The roles are display, headline, title, body, and label, each large, medium, or small.
