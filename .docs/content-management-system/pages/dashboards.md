@@ -99,6 +99,7 @@ Where: the summary tiles on every dashboard.
 - `categories`: Categories in View
 - `categories_note`: {{count}} medals in special categories
 - `medal_split`: Gold, Silver, Bronze
+- `medal_visual`: Visual medal summary
 - `entrants`: Entrants in These Categories
 - `entrants_note`: Sum of category entry counts
 

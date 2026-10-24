@@ -7,6 +7,7 @@
 (function () {
   'use strict';
   var TO_PAGE = 'gabf-control-plane';
+  var BASE = document.currentScript && document.currentScript.dataset.basePath || '';
   var lists = null;
 
   // ---------- small helpers ----------
@@ -21,7 +22,7 @@
     return n;
   }
   function api(method, path) {
-    return fetch(path).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'rejected'); return j; }); });
+    return fetch(BASE + path).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'rejected'); return j; }); });
   }
   var words = function (s) { s = String(s).replace(/[-_]+/g, ' ').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
 
@@ -63,15 +64,7 @@
     return Boolean(w);
   }
 
-  function render(into, context) {
-    into.innerHTML = '';
-    var live = Boolean(livePage(context));
-    into.appendChild(h('div', { class: 'fbp' },
-      h('p', { text: live
-        ? 'Feedback opens beside the page in the frame: write the note, click the page to pin spots, double click page copy to edit it in place, or change a design setting. The ticket is filed against this journey step.'
-        : 'This screen has no live page on the web app, so there is nothing to give feedback on here.' }),
-      h('p', { class: 'fbp-hint', text: 'At a phone width no feedback is collected; widen the window to give it.' })));
-  }
+  function render(into, context) { into.replaceChildren(); }
   function opened(open, context) { tell(context, open); }
 
   // One entry of the control plane's "Made of" lists. A component is shown by its plain name and becomes a link to its
