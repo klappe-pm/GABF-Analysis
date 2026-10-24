@@ -14,7 +14,9 @@
   display: none; flex: 0 0 400px; width: 400px; max-width: 100%; padding: 0; overflow: hidden;
   box-shadow: none; border-left: var(--border-width) solid var(--border-default);
 }
-.panel[data-mode="feedback"][data-open="true"] { display: flex; flex-direction: column; }
+.panel[data-mode="feedback"][data-open="true"] { display: none; }
+#feedback { background: #0b57d0; border-color: #0b57d0; color: #fff; min-height: 44px; }
+#feedback:hover { background: #0842a0; }
 .panel[data-mode="feedback"] > .close { display: none; }
 .panel[data-mode="feedback"] #panelbody { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 

@@ -25,6 +25,16 @@ Where: the docked Feedback panel.
 - `spot_pin_aria`: Spot {{n}}
 - `categories_heading`: Categories
 - `categories_unavailable`: Categories are unavailable: the review server did not answer.
+- `category_change`: Change requested
+- `category_content`: Content and data
+- `category_appearance`: Appearance
+- `category_interaction`: Interaction and accessibility
+- `category_additional`: Additional categories
+- `other_label`: Other Details
+- `settings_heading`: Page settings
+- `other_placeholder`: Add any details that do not fit a category.
+- `retry`: Retry
+- `step_unavailable`: Journey steps could not be loaded. Retry to select a step.
 - `components_heading`: Design System Components
 - `components_none`: None linked.
 - `components_label`: Linked Components
@@ -48,6 +58,7 @@ Where: the status line at the foot of the panel.
 
 - `note_required`: Write a note first.
 - `step_required`: Choose a journey step first. Feedback is recorded against a step.
+- `other_required`: Write the other details first.
 - `sending`: Sending.
 - `registered`: Registered as {{id}} and accepted. Screenshots are being taken.
 - `redacted`: A value shaped like a secret was removed.
