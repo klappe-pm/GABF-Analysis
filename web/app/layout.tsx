@@ -9,8 +9,8 @@ import { bakedState } from '@/lib/design-source';
 import { SITE_ORIGIN } from '@/lib/href';
 import './globals.css';
 
-// Public Sans sets body text, headings, and every figure. Archivo Narrow sets short labels only.
-// Both are always loaded, so the font settings can switch between them without a rebuild.
+// Public Sans is the default for body text, headings, labels, and figures. Both available faces load
+// here, so the font settings can switch between them without a rebuild.
 const sans = Public_Sans({ subsets: ['latin'], variable: '--font-public-sans', display: 'swap', weight: 'variable' });
 const narrow = Archivo_Narrow({ subsets: ['latin'], variable: '--font-archivo-narrow', display: 'swap', weight: 'variable' });
 
