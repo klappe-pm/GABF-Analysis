@@ -37,7 +37,7 @@ export const TYPE_ROLES = [
 ] as const;
 export type TypeRole = (typeof TYPE_ROLES)[number];
 
-// The two faces the site loads (web/app/layout.tsx). Figures are always set in Public Sans.
+// The two faces the site loads (web/app/layout.tsx). Figures use the selected body face.
 export const FONTS = ['Public Sans', 'Archivo Narrow'] as const;
 
 const cssName = (plain: string) => plain.trim().toLowerCase().replace(/\s+/g, '-');
@@ -64,8 +64,8 @@ export const GLOBAL: Record<string, Kind> = {
   'Surface tint': enumOf(['none', 'seed']),
   'Page background': enumOf(['white', 'scheme']),
   Contrast: enumOf(['standard', 'medium', 'high']),
-  'Heading font': enumOf(['Public Sans']),
-  'Body font': enumOf(['Public Sans']),
+  'Heading font': enumOf(FONTS),
+  'Body font': enumOf(FONTS),
   'Label font': enumOf(FONTS),
   'Corner shape': enumOf(['square', 'small', 'medium', 'large']),
   // Page layout by Material window size class: how wide content may grow, the side margins, and the

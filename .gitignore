@@ -1,4 +1,5 @@
 node_modules/
+**/.tickets.sqlite*
 dist/
 _site/
 # Build outputs that only feed the deploy: npm run generate rebuilds them, CI builds them for every run.

@@ -16,11 +16,12 @@ type Props = {
   skipTarget: string;
   actions?: ReactNode;
   menuId?: string;
+  navigationToggle?: ReactNode;
 };
 
 // The site header as a Material top app bar: the site name, then the navigation in the order the layout
 // file gives. On phones the navigation folds behind a menu button.
-export function PageHeader({ brand, nav, navLabel, menuLabel, skipLabel, skipTarget, actions, menuId = 'site-header-menu' }: Props) {
+export function PageHeader({ brand, nav, navLabel, menuLabel, skipLabel, skipTarget, actions, navigationToggle, menuId = 'site-header-menu' }: Props) {
   const s = useSettings('page-header');
   const order = useDesign().layout['Site navigation'];
   const items = [...nav].sort((a, b) => (order.indexOf(a.id) + 1 || 99) - (order.indexOf(b.id) + 1 || 99));
@@ -40,6 +41,7 @@ export function PageHeader({ brand, nav, navLabel, menuLabel, skipLabel, skipTar
     <header data-component="page-header" style={{ background: color(s['Container color'] ?? 'surface container') }}>
       <a href={skipTarget} className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-surface focus:p-2">{skipLabel}</a>
       <div className="mx-auto flex min-h-16 max-w-(--app-page-max) items-center gap-4 px-4">
+        {navigationToggle}
         <a href={brand.href} className={`text-on-surface ${typeOf(s['Title style'] ?? 'title large')}`}>{brand.text}</a>
         <nav aria-label={navLabel} className="hidden medium:block">
           <ul className="flex gap-1">
