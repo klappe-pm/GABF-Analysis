@@ -30,3 +30,12 @@ web/public/design-settings/
 web/out-review/
 web/out-web-review/
 web/out-test-*/
+
+# Visibility model: local work, machine secrets and the local ticket index never ship.
+# Instruction files are generated from agent-runtime-config/projects/roots/gabf-analysis/.
+/local/
+*.local.*
+.tickets.sqlite*
+/AGENTS.md
+/CODEX.md
+/GEMINI.md
