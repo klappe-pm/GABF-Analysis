@@ -71,9 +71,11 @@ test('the footer links Method and Saved views through href()', () => {
   assert.match(src, /href=\{href\(paths\.saved\)\}[^\n]*global\.navigation\.footer\.saved_views/);
 });
 
-test('the compact tabs scroll sideways inside their own row and keep each label on one line', () => {
+test('the menu button opens one navigation drawer, which holds every destination', () => {
+  // The compact tab row was replaced by a menu button that toggles a drawer (a rail on wider screens).
   const src = readFileSync(resolve(ROOT, 'web', 'app', '(site)', 'shell', 'SiteShell.tsx'), 'utf8');
-  assert.match(src, /<ul ref=\{row\} className="flex overflow-x-auto/);
-  assert.match(src, /<li key=\{item\.id\} className="shrink-0">/);
-  assert.match(src, /whitespace-nowrap/);
+  assert.match(src, /aria-controls="site-navigation"/);
+  assert.match(src, /aria-expanded=\{navigationOpen\}/);
+  assert.match(src, /<NavigationDrawer label=\{config\.navLabel\} items=\{all\}/);
+  assert.doesNotMatch(src, /overflow-x-auto/);
 });
