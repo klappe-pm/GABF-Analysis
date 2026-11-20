@@ -1,7 +1,7 @@
 'use client';
 
 import { useSettings } from '@/design/runtime';
-import { lucideIcons } from './lucide-icons';
+import { lucideIcons } from '../lib/lucide-icons';
 
 export type IconName = keyof typeof lucideIcons;
 
