@@ -185,8 +185,16 @@ async function main() {
     if ((g['Page width'] ?? 'full') === 'full' && r.content < r.viewport - r.navWidth - 2 * r.margin - 2) problems.push(`${width}: content is ${Math.round(r.content)}px wide in a ${r.viewport}px window; it should fill the window`);
     await ctx.close();
   }
-  // The site shell on every site page: the top app bar, the navigation the window size class calls for
-  // with the current destination marked, no sideways scroll, a main region, and the table rules.
+  // The site shell on every site page: the top app bar, the left navigation behind the Menu button
+  // (settings.md: it opens and closes on every screen size and starts closed) with the current
+  // destination marked once open, no sideways scroll, a main region, and the table rules.
+  const navState = () => {
+    const shown = (s) => { const e = document.querySelector(s); return e ? getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().width > 0 : false; };
+    const nav = ['tabs', 'rail', 'drawer'].find((n) => shown(`[data-nav="${n}"]`));
+    const links = nav ? [...document.querySelectorAll(`[data-nav="${nav}"] a`)].map((a) => a.textContent.trim()) : [];
+    const current = nav ? document.querySelector(`[data-nav="${nav}"] a[aria-current]`)?.textContent.trim() ?? null : null;
+    return { nav: nav ?? null, links, current };
+  };
   for (const width of [390, 1024, 1440]) {
     for (const path of [...sitePages, '/404.html']) {
       const ctx = await browser.newContext({ viewport: { width, height: 1000 } });
@@ -194,17 +202,23 @@ async function main() {
       await page.goto(`${origin}${path}`, { waitUntil: 'networkidle' });
       await page.waitForSelector('html[data-settings-applied="true"]', { timeout: 20000 });
       await page.evaluate(() => document.fonts.ready);
-      const r = await page.evaluate(() => {
-        const shown = (s) => { const e = document.querySelector(s); return e ? getComputedStyle(e).display !== 'none' : false; };
-        const nav = ['tabs', 'rail', 'drawer'].find((n) => shown(`[data-nav="${n}"]`));
-        const links = nav ? [...document.querySelectorAll(`[data-nav="${nav}"] a`)].map((a) => a.textContent.trim()) : [];
-        const current = nav ? document.querySelector(`[data-nav="${nav}"] a[aria-current]`)?.textContent.trim() ?? null : null;
-        return { tabs: shown('[data-nav="tabs"]'), rail: shown('[data-nav="rail"]'), drawer: shown('[data-nav="drawer"]'), links, current, header: Boolean(document.querySelector('header a')), main: Boolean(document.getElementById('main')), overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth };
-      });
-      const want = width < 600 ? 'tabs' : width < 1200 || !drawerWide ? 'rail' : 'drawer';
-      for (const nav of ['tabs', 'rail', 'drawer']) if (r[nav] !== (nav === want)) problems.push(`${path} at ${width}: ${nav} is ${r[nav] ? 'shown' : 'hidden'}; this window size shows ${want}`);
-      if (r.links.length < 4) problems.push(`${path} at ${width}: the site navigation has ${r.links.length} destinations`);
-      if (path.startsWith('/beers/') && !r.current) problems.push(`${path} at ${width}: no destination is marked current`);
+      const r = await page.evaluate(() => ({ header: Boolean(document.querySelector('header a')), main: Boolean(document.getElementById('main')), overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth }));
+      const closed = await page.evaluate(navState);
+      if (closed.nav) problems.push(`${path} at ${width}: the navigation (${closed.nav}) is open before the Menu button is pressed`);
+      const toggle = page.locator('button[aria-controls="site-navigation"]');
+      if (await toggle.count() !== 1) problems.push(`${path} at ${width}: no Menu button for the site navigation`);
+      else {
+        await toggle.click();
+        const want = !drawerWide && width >= 600 ? 'rail' : 'drawer';
+        await page.waitForSelector(`[data-nav="${want}"]`, { state: 'visible', timeout: 5000 }).catch(() => {});
+        const open = await page.evaluate(navState);
+        if (open.nav !== want) problems.push(`${path} at ${width}: the Menu button shows ${open.nav ?? 'no navigation'}; this window size shows ${want}`);
+        if (await toggle.getAttribute('aria-expanded') !== 'true') problems.push(`${path} at ${width}: the Menu button does not report the navigation as expanded`);
+        if (open.links.length < 4) problems.push(`${path} at ${width}: the site navigation has ${open.links.length} destinations`);
+        if (path.startsWith('/beers/') && !open.current) problems.push(`${path} at ${width}: no destination is marked current`);
+        await toggle.click();
+        if ((await page.evaluate(navState)).nav) problems.push(`${path} at ${width}: the Menu button does not close the navigation`);
+      }
       if (!r.header) problems.push(`${path} at ${width}: no top app bar`);
       if (!r.main) problems.push(`${path} at ${width}: no main region`);
       if (r.overflow) problems.push(`${path} at ${width}: the page scrolls sideways`);
