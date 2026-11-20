@@ -7,7 +7,7 @@ The tooling is [product-feedback](https://github.com/klappe-pm/product-feedback)
 ## start-reviewing
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run review
+cd $HOME/projects/active/gabf-analysis && npm run review
 ```
 
 That builds the review version of the web app (`WEB_REVIEW=1`, into `web/out-web-review/`) and the control plane, then starts one server on `http://127.0.0.1:4173/`, bound to this machine only, with the feedback pipeline on. Open `http://127.0.0.1:4173/control-plane/` for the control plane (jobs, journeys, and all 51 screens, each framing a page of the review build), for example `#S-01`. The review build on its own is at `http://127.0.0.1:4173/`, with the Feedback entry point on every page. `npm run web:review` serves the same on `http://127.0.0.1:4176/` with the pipeline off.
@@ -52,13 +52,13 @@ One Markdown file per ticket under `docs/feedback/<page-name>/`, tracked in git,
 The frontmatter holds the id, status, job, step, state, route, spots (selector, rect and element text per pin), components, content keys, content edits, setting edits, categories, images, the issue and pull request numbers once they exist, created and revised; the note is the body. Each image is `{ path, kind, spot, component, url }`: the path is relative to the ticket, the kind is `page`, `spot` or `component`, and the url is the address the image has on main once the pull request merges. Every ticket is ACCEPTED when it is registered, and an edit keeps it ACCEPTED and moves only revised. Every string is scanned with product-feedback's token shape detector before it is written, and again before anything is sent to GitHub, because the repository is public. Tickets hold a reviewer's own words, so `npm run check` skips `docs/feedback/`; `npm run design:check` checks their structure instead.
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- list
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- show WI-003
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- refine WI-003 --note "Only at phone width" --categories "Layout,Mobile"
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- resolve WI-003 --commit <sha> --note "What was done"
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- decline WI-003 --note "Why not"
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- migrate
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run tickets -- process --scan --dry-run
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- list
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- show WI-003
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- refine WI-003 --note "Only at phone width" --categories "Layout,Mobile"
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- resolve WI-003 --commit <sha> --note "What was done"
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- decline WI-003 --note "Why not"
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- migrate
+cd $HOME/projects/active/gabf-analysis && npm run tickets -- process --scan --dry-run
 ```
 
 `migrate` moves tickets from the retired local folder `.docs/feedback/` to `docs/feedback/` unchanged: the note and every frontmatter line stay byte for byte, only `images: []` and `issue: null` are added, the id is kept, and an image folder moves with its ticket. It also copies the notes of the retired `design-feedback.jsonl` into the layout once, from the file or from git when the file is gone, and skips any note already copied. `export-github` prints the `gh issue create` commands that would turn accepted tickets into GitHub issues. It does not run them.
@@ -93,10 +93,10 @@ The pipeline touches only `klappe-pm/GABF-Analysis`: every `gh` call names it an
 A question only the owner can answer is an issue assigned to klappe-pm, labelled `needs: owner decision` and `area: <plain area>`, written to the form `.github/ISSUE_TEMPLATE/owner-decision.yml`: the question, the context with links, the options (each with what choosing it means), the recommended option, what is blocked until it is answered, and how to answer. A person fills in the form on GitHub; an agent or session files the same thing from the command line, and an open issue that asks the same question is returned instead of filed twice.
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run decisions -- open --question "Keep the tables sideways on phones?" --option "Yes => one design at every width" --option "No => cards at phone width" --recommend A --blocks "The phone layout" --context "See the medal tables page" --area design
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run decisions -- open --file decisions.json
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run decisions -- list
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run decisions -- poll
+cd $HOME/projects/active/gabf-analysis && npm run decisions -- open --question "Keep the tables sideways on phones?" --option "Yes => one design at every width" --option "No => cards at phone width" --recommend A --blocks "The phone layout" --context "See the medal tables page" --area design
+cd $HOME/projects/active/gabf-analysis && npm run decisions -- open --file decisions.json
+cd $HOME/projects/active/gabf-analysis && npm run decisions -- list
+cd $HOME/projects/active/gabf-analysis && npm run decisions -- poll
 ```
 
 The owner answers by replying to the issue with an option letter or free text. The review server (every two minutes, `PRODUCT_FEEDBACK_DECISION_POLL_MS` changes it) and `npm run tickets -- process` look at the comments on every open decision issue. The latest comment authored by klappe-pm is the answer; comments by anyone else are ignored. Agents post through the owner's own GitHub login, so every comment the pipeline writes begins with `<!-- feedback-pipeline -->` and is never read as an answer.
@@ -124,7 +124,7 @@ What a change reaches: `product-feedback design impact surface:brewery-detail`.
 product-feedback is installed once per machine from its checkout, which puts the `product-feedback` command on the path:
 
 ```bash
-cd /Users/kevinlappe/projects/active/product-feedback && npm ci && npm link
+cd $HOME/projects/active/product-feedback && npm ci && npm link
 ```
 
 [product-feedback.config.json](../../product-feedback.config.json) is this site's side of the contract: the repository and owner for issues and decisions, the folders (`docs/design`, `docs/feedback`, the copy folder, the design system), the token stylesheet and the shell aliases, the screen drives, the message names the web app's review widget listens for (`gabf-control-plane`), the source folders copy may be hard coded in, the compound words copy may hyphenate, the pipeline's house rules, and the review hooks. [scripts/review-hooks.mjs](../../scripts/review-hooks.mjs) gives the review server the web review build, the rebuild after a copy edit, and the design system's setting edits with the picture each one carries. `tests/product-feedback.test.mjs` checks both; the tests that need the tool skip where it is not installed, as in continuous integration. The design system's setting editor writes its tickets through [scripts/lib/ticket-format.mjs](../../scripts/lib/ticket-format.mjs), and `npm run design:check` validates every ticket against product-feedback's format.

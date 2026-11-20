@@ -12,11 +12,6 @@ date-revised: 2026-10-15
 status: ACCEPTED
 aliases: []
 tags: []
-models:
-  - claude-fable-5-1
-providers:
-  - Anthropic
-session-link: https://claude.ai/code/session_017p8WkwJF1gqWYn98dKrcBw
 ---
 
 # architecture

@@ -8,20 +8,20 @@ license: MIT
 
 A design that lives in a specification document is argued about in the abstract. A design that lives only in a Figma file cannot be diffed, cannot be gated, and cannot answer what a change reaches. This skill builds the third thing: a generated, version controlled control plane where every screen is drawn from the same manifest the gate checks, every screen explains itself, and feedback on it becomes a record in git rather than a message in a thread.
 
-The implementation is `product-feedback` (`/Users/kevinlappe/projects/active/product-feedback`), a development tool any project can turn on. It is installed once per machine and puts the `product-feedback` command on the path; a project's build, continuous integration and deploy never import it.
+The implementation is `product-feedback` (`$HOME/projects/active/product-feedback`), a development tool any project can turn on. It is installed once per machine and puts the `product-feedback` command on the path; a project's build, continuous integration and deploy never import it.
 
 ## is-it-on-for-this-project
 
 Two switches, both required. llm-root delivers this skill only to a project whose column has `x` on the `skill:design-control-plane` row of `control-plane.md`; that is the cross project toggle. The project itself opts in with `product-feedback.config.json` at its root holding `"enabled": true`; every command refuses to act on a project without it. Check both before acting:
 
 ```bash
-cd /Users/kevinlappe/projects/active/<project> && product-feedback status
+cd $HOME/projects/active/<project> && product-feedback status
 ```
 
 When the command is missing, install it:
 
 ```bash
-cd /Users/kevinlappe/projects/active/product-feedback && npm ci && npm link
+cd $HOME/projects/active/product-feedback && npm ci && npm link
 ```
 
 When the project has no config yet, bootstrapping it (below) starts with that file. The keys are in `docs/configuration.md` of the product-feedback repository; a project names only what differs from the defaults.
@@ -57,7 +57,7 @@ The gate then enforces that every screen belongs to exactly one surface. Two mea
 This is the edge that makes the control plane a control plane:
 
 ```bash
-cd /Users/kevinlappe/projects/active/<project> && product-feedback design impact surface:query-table
+cd $HOME/projects/active/<project> && product-feedback design impact surface:query-table
 ```
 
 ## the-commands
@@ -65,12 +65,12 @@ cd /Users/kevinlappe/projects/active/<project> && product-feedback design impact
 Run from anywhere inside the project; the root is the nearest folder holding `product-feedback.config.json`.
 
 ```bash
-cd /Users/kevinlappe/projects/active/<project> && product-feedback design generate
-cd /Users/kevinlappe/projects/active/<project> && product-feedback design check
-cd /Users/kevinlappe/projects/active/<project> && product-feedback review serve --port 4173 --pipeline off
-cd /Users/kevinlappe/projects/active/<project> && product-feedback tickets list
-cd /Users/kevinlappe/projects/active/<project> && product-feedback tickets resolve WI-001 --commit <sha> --note "what was done"
-cd /Users/kevinlappe/projects/active/<project> && product-feedback decisions list
+cd $HOME/projects/active/<project> && product-feedback design generate
+cd $HOME/projects/active/<project> && product-feedback design check
+cd $HOME/projects/active/<project> && product-feedback review serve --port 4173 --pipeline off
+cd $HOME/projects/active/<project> && product-feedback tickets list
+cd $HOME/projects/active/<project> && product-feedback tickets resolve WI-001 --commit <sha> --note "what was done"
+cd $HOME/projects/active/<project> && product-feedback decisions list
 ```
 
 `design check` fails when what is on disk no longer matches the manifest and when a ticket is malformed. Wire it into the project's local design gate, so a manifest edit that was never regenerated is a gate failure rather than a surprise three sessions later. It stays out of continuous integration, which does not install the tool.

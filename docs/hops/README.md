@@ -48,7 +48,7 @@ The hop section links every hop named in a 2026 medal beer profile to a publishe
 ## rebuilding
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && node scripts/ingest-nass-hops.mjs --fetch && node scripts/build-hop-data.mjs
+cd $HOME/projects/active/gabf-analysis && node scripts/ingest-nass-hops.mjs --fetch && node scripts/build-hop-data.mjs
 ```
 
 The catalogue in `scripts/lib/hop-catalogue.mjs` is the hand curated source: each figure there is copied from the page named beside it. `npm run hops:check` validates the files and the 2026 profiles.

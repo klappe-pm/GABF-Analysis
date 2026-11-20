@@ -74,7 +74,7 @@ Tokens are placeholders the build fills in. The common ones:
 
 ## Open decisions
 
-Content decisions are recorded using `Content Design Records (CDR)`. Read README.MD for details. They are saved here: `/Users/kevinlappe/projects/active/gabf-analysis/.docs/cdr`. Update the metadata on the files to align with the project and ADR process. Ensure that all agent instructions file are updated with this poitner and how to apply it alongside adrs. 
+Content decisions are recorded using `Content Design Records (CDR)`. Read README.MD for details. They are saved here: `$HOME/projects/active/gabf-analysis/.docs/cdr`. Update the metadata on the files to align with the project and ADR process. Ensure that all agent instructions file are updated with this poitner and how to apply it alongside adrs. 
 
 These need a choice before the rebuild. The files hold a working answer for each.
 

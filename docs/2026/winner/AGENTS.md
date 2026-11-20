@@ -7,7 +7,7 @@ This folder holds one markdown profile per GABF 2026 medal (336 files): style, A
 The profiles in this folder are the source. The database is generated output and is never hand-edited: change a profile, then rebuild.
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && node scripts/build-winner-db.mjs 2026
+cd $HOME/projects/active/gabf-analysis && node scripts/build-winner-db.mjs 2026
 ```
 
 The build writes `data/enriched/winners-2026.sqlite` from scratch on every run and needs Node 22 or newer. The database is a local build output and is not in git: never commit it, `gabf-dashboard.html`, or `gabf-explorer.html` on a research branch. `npm run generate`, `npm run build`, CI, and the deploy rebuild them from the profiles.
@@ -30,7 +30,7 @@ Each profile opens with frontmatter, then lowercase kebab-case sections: `award`
 Open the database read-only. Tables: `beers`, `breweries`, `categories`, `ingredients` (kind is hop, malt, yeast or adjunct), `beer_ingredients`, `sources`, and the full text index `beers_fts`, plus the district and indicator tables below. Views: `v_beer_ingredients`, `v_brewery_medals`, `v_hop_usage`, and the district views below.
 
 ```bash
-sqlite3 -readonly /Users/kevinlappe/projects/active/gabf-analysis/data/enriched/winners-2026.sqlite "SELECT hop, beers FROM v_hop_usage LIMIT 10"
+sqlite3 -readonly $HOME/projects/active/gabf-analysis/data/enriched/winners-2026.sqlite "SELECT hop, beers FROM v_hop_usage LIMIT 10"
 ```
 
 To traverse: start at `categories` or `breweries`, join to `beers` on `category_number` or `brewery`, then to `beer_ingredients` and `ingredients` for what is in the glass, or to `sources` for the pages behind a row. To read the prose, open the file named by `beers.file`. Full text search: `SELECT id FROM beers_fts WHERE beers_fts MATCH 'grapefruit'`.
@@ -50,7 +50,7 @@ The build also loads five reference tables from `data/reference/` so medals can 
 Views: `v_beer_district` (each beer with its brewery's district and `district_method`: state, county, approximation, or approximation (city not resolved)), `v_state_medal_rates` and `v_district_medal_rates` (medals, population, real GDP, medals per million, and medals per $100 billion of real GDP by geography and year).
 
 ```bash
-sqlite3 -readonly /Users/kevinlappe/projects/active/gabf-analysis/data/enriched/winners-2026.sqlite "SELECT district_number, district_name, medals, ROUND(medals_per_million, 2) FROM v_district_medal_rates ORDER BY medals_per_million DESC"
+sqlite3 -readonly $HOME/projects/active/gabf-analysis/data/enriched/winners-2026.sqlite "SELECT district_number, district_name, medals, ROUND(medals_per_million, 2) FROM v_district_medal_rates ORDER BY medals_per_million DESC"
 ```
 
 The join runs from `beers.brewery` to `breweries` (city and state from the profile frontmatter) to `medal_city_counties` and `fed_districts`. A profile whose city is spelled differently from the winners list falls back to the state's majority district and says so in `district_method`.
@@ -60,5 +60,5 @@ The join runs from `beers.brewery` to `breweries` (city and state from the profi
 Follow the repository writing rules: no dash as punctuation, one physical line per paragraph, lowercase kebab-case headings, no credit to any agent or model. Never fabricate a figure, hop, or link; a stated gap beats a guess. After editing profiles, rebuild the database, then run the gate.
 
 ```bash
-cd /Users/kevinlappe/projects/active/gabf-analysis && npm run verify
+cd $HOME/projects/active/gabf-analysis && npm run verify
 ```
